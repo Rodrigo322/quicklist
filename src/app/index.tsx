@@ -1,4 +1,5 @@
 import {
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -7,27 +8,31 @@ import {
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface BuysProps {
   id: number;
   name: string;
+  complete: boolean;
 }
 
 export default function Index() {
   const [buys, setBuys] = useState<BuysProps[]>([]);
   const [item, setItem] = useState("");
 
-  function includeItemOnBuy() {
-    if (item) {
-      setBuys([
-        ...buys,
-        {
-          id: Math.random(),
-          name: item,
-        },
-      ]);
+  function saveItem() {
+    if (item.trim()) {
+      setBuys([...buys, { id: buys.length + 1, name: item, complete: false }]);
+      setItem("");
     }
+  }
+
+  function toggleComplete(id: number) {
+    setBuys((prevBuys) =>
+      prevBuys.map((buy) =>
+        buy.id === id ? { ...buy, complete: !buy.complete } : buy
+      )
+    );
   }
 
   return (
@@ -40,72 +45,42 @@ export default function Index() {
         placeholderTextColor="9CA3AF"
         onChangeText={setItem}
       />
-      <TouchableOpacity onPress={includeItemOnBuy} style={styles.button}>
+      <TouchableOpacity onPress={saveItem} style={styles.button}>
         <Text style={styles.textButton}>Adicionar item</Text>
       </TouchableOpacity>
 
       <View style={styles.cardContainer}>
         {buys.map((item) => (
-          <View style={styles.card}>
+          <View
+            key={item.id}
+            style={
+              item.complete
+                ? [styles.card, { backgroundColor: "#a9ffbe" }]
+                : styles.card
+            }
+          >
             <View style={styles.infoCard}>
-              <MaterialIcons
-                name="check-box-outline-blank"
-                size={20}
-                color="#D1D5DB"
-              />
+              <Pressable onPress={() => toggleComplete(item.id)}>
+                {item.complete ? (
+                  <MaterialIcons name="check-box" size={20} color="black" />
+                ) : (
+                  <MaterialIcons
+                    name="check-box-outline-blank"
+                    size={20}
+                    color="#D1D5DB"
+                  />
+                )}
+              </Pressable>
+
               <Text style={styles.textItem}>{item.name}</Text>
             </View>
-            <AntDesign name="delete" size={24} color="#D1D5DB" />
+            <AntDesign
+              name="delete"
+              size={24}
+              color={item.complete ? "black" : "#D1D5DB"}
+            />
           </View>
         ))}
-
-        <View style={styles.card}>
-          <View style={styles.infoCard}>
-            <MaterialIcons
-              name="check-box-outline-blank"
-              size={20}
-              color="#D1D5DB"
-            />
-            <Text style={styles.textItem}> item 1</Text>
-          </View>
-          <AntDesign name="delete" size={24} color="#D1D5DB" />
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.infoCard}>
-            <MaterialIcons
-              name="check-box-outline-blank"
-              size={20}
-              color="#D1D5DB"
-            />
-            <Text style={styles.textItem}> item 1</Text>
-          </View>
-          <AntDesign name="delete" size={24} color="#D1D5DB" />
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.infoCard}>
-            <MaterialIcons
-              name="check-box-outline-blank"
-              size={20}
-              color="#D1D5DB"
-            />
-            <Text style={styles.textItem}> item 1</Text>
-          </View>
-          <AntDesign name="delete" size={24} color="#D1D5DB" />
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.infoCard}>
-            <MaterialIcons
-              name="check-box-outline-blank"
-              size={20}
-              color="#D1D5DB"
-            />
-            <Text style={styles.textItem}> item 1</Text>
-          </View>
-          <AntDesign name="delete" size={24} color="#D1D5DB" />
-        </View>
       </View>
     </View>
   );
